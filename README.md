@@ -21,7 +21,7 @@ Por ejemplo, si la palabra a adivinar es "VIVIR" y la respuesta correcta es "ABR
 ## Instalación y ejecucción
 Para instalar el programa, deberás clonar el repositorio en tu máquina local. Para ello, abre una terminal y escribe el siguiente comando:
 ```bash
-git clone
+git clone https://github.com/Joseleelsuper/Wordle-Resolver.git
 ```
 Una vez clonado el repositorio, accede a la carpeta del proyecto y ejecuta el script de Python:
 ```bash
