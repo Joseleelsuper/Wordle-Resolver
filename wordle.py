@@ -1,6 +1,7 @@
 import sys
 import tkinter as tk
 from tkinter import simpledialog, messagebox
+import random
 
 FILE = "palabras.txt"
 WORD_LENGTH = 5
@@ -113,11 +114,16 @@ def main_cli():
         print("No se encontraron palabras de longitud", word_length)
         sys.exit()
 
-    attempt = input("Ingresa la primera palabra: ").lower()
+    attempt: str = input("Ingresa la primera palabra: ").lower()
     if attempt not in words:
         print(
             "La palabra no está en la lista. Prueba a añadirla manualmente al diccionario y vuelve a ejecutar el programa."
         )
+        sys.exit()
+    elif len(attempt) == 0 or len(attempt) is None:
+        attempt = random.choice(words)
+    elif len(attempt) != word_length:
+        print("La longitud de la palabra debe ser", word_length)
         sys.exit()
 
     while True:
@@ -177,10 +183,9 @@ class WordleSolverGUI:
                 "Configuración", "Ingresa la primera palabra:"
             )
             if not attempt:
-                self.root.destroy()
-                return
+                attempt = random.choice(self.words_list)
             attempt = attempt.lower().strip()
-            if attempt in self.words_list:
+            if attempt in self.words_list and len(attempt) == self.word_length:
                 self.current_attempt = attempt
                 break
             else:
