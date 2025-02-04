@@ -1,4 +1,3 @@
-import sys
 import tkinter as tk
 from tkinter import simpledialog, messagebox
 import random
@@ -9,11 +8,12 @@ FEEDBACK = ["B", "C", "M"]
 
 
 def load_words(file: str = FILE, word_length: int = WORD_LENGTH) -> list:
-    """Carga un archivo de palabras y devuelve las de longitud n.
+    """
+    Carga un archivo de palabras y devuelve las de longitud n.
 
     Args:
-        archivo (str, optional): Fichero a ser cargado. Defaults to FILE.
-        n (int, optional): Longitud de las palabras a filtrar. Defaults to WORD_LENGTH.
+        file (str, optional): Fichero a ser cargado. Defaults to FILE.
+        word_length (int, optional): Longitud de las palabras a filtrar. Defaults to WORD_LENGTH.
 
     Returns:
         list: Lista de palabras filtradas.
@@ -23,30 +23,28 @@ def load_words(file: str = FILE, word_length: int = WORD_LENGTH) -> list:
 
 
 def simulate_feedback(candidate: str, attempt: str) -> str:
-    """Simula el feedback comparando la palabra candidata con el intento,
+    """
+    Simula el feedback comparando la palabra candidata con el intento,
     siguiendo la mecánica de Wordle para letras repetidas.
 
-    'B' = Bien (letra en la posición correcta).\n
-    'C' = Cambio (letra correcta en posición incorrecta).\n
+    'B' = Bien (letra en la posición correcta).
+    'C' = Cambio (letra correcta en posición incorrecta).
     'M' = Mal (letra incorrecta).
 
     Args:
-        lista (list): Lista de palabras a filtrar.
-        attempt (int): Número de intento.
-        feedback (str): Feedback del intento.
+        candidate (str): Palabra candidata.
+        attempt (str): Palabra intentada.
 
     Returns:
-        list: Lista de palabras que cumplen con el feedback.
+        str: Feedback resultante como cadena formada por 'B', 'C' y 'M'.
     """
     feedback_result = [""] * len(candidate)
     candidate_list = list(candidate)
-
     # Primer pase: marcar 'B' en coincidencias exactas.
     for i in range(len(attempt)):
         if attempt[i] == candidate_list[i]:
             feedback_result[i] = FEEDBACK[0]
             candidate_list[i] = None  # Marcar letra usada.
-
     # Segundo pase: marcar 'C' o 'M' en función de las letras restantes.
     for i in range(len(attempt)):
         if feedback_result[i] == "":
@@ -60,14 +58,12 @@ def simulate_feedback(candidate: str, attempt: str) -> str:
 
 def filter_words(words_list: list, attempt: str, feedback: str) -> list:
     """
-    Filtra la lista de palabras conservando solo aquellas que,
-    al simular el feedback con el attempt, coinciden exactamente con
-    el feedback proporcionado.
+    Filtra la lista de palabras candidatas de acuerdo al feedback recibido.
 
     Args:
-        lista (list): Lista de palabras a filtrar.
-        attempt (int): Número de attempt.
-        feedback (str): Feedback del attempt.
+        words_list (list): Lista de palabras a filtrar.
+        attempt (str): Palabra intentada.
+        feedback (str): Feedback recibido en base a 'B', 'C', 'M'.
 
     Returns:
         list: Lista de palabras filtradas.
@@ -85,7 +81,7 @@ def best_try(words_list: list) -> str:
     únicas en la lista de palabras candidatas.
 
     Args:
-        lista (list): Lista de palabras a evaluar.
+        words_list (list): Lista de palabras a evaluar.
 
     Returns:
         str: Palabra con mejor puntaje.
@@ -105,70 +101,29 @@ def best_try(words_list: list) -> str:
 
 
 def main_cli():
-    """Función principal del resolverdor de Wordle en modo consola."""
-    word_length_input = input("Ingresa la cantidad de letras (default 5): ").strip()
-    word_length = int(word_length_input) if word_length_input.isdigit() else WORD_LENGTH
-
-    words = load_words(FILE, word_length)
-    if not words:
-        print("No se encontraron palabras de longitud", word_length)
-        sys.exit()
-
-    attempt: str = input("Ingresa la primera palabra: ").lower()
-    if attempt not in words:
-        print(
-            "La palabra no está en la lista. Prueba a añadirla manualmente al diccionario y vuelve a ejecutar el programa."
-        )
-        sys.exit()
-    elif len(attempt) == 0 or len(attempt) is None:
-        attempt = random.choice(words)
-    elif len(attempt) != word_length:
-        print("La longitud de la palabra debe ser", word_length)
-        sys.exit()
-
-    while True:
-        print("\nIntento:", attempt)
-        feedback = (
-            input(
-                "Ingresa feedback (usa 'B' para bien, 'C' para cambiar, 'M' para mal, o 'T'/'esc' para terminar): "
-            )
-            .upper()
-            .strip()
-        )
-        if feedback in ["T", "ESC"]:
-            print("Terminado.")
-            break
-        if len(feedback) != word_length:
-            print("El feedback debe tener", word_length, "letras.")
-            continue
-
-        words = filter_words(words, attempt, feedback)
-        if not words:
-            print("No hay palabras posibles. Revisa el feedback.")
-            break
-        attempt = best_try(words)
-        print("Siguiente sugerencia:", attempt)
+    """
+    Función principal para modo consola.
+    TODO: Implementar el modo CLI si es necesario.
+    """
+    pass
 
 
 class WordleSolverGUI:
-    """Clase principal del resolverdor de Wordle en modo gráfico."""
-
     def __init__(self):
-        """Inicializa la interfaz gráfica y los elementos necesarios."""
         self.root = tk.Tk()
         self.root.title("Wordle Solver - Modo Gráfico")
         self.word_length = WORD_LENGTH
-        self.words_list = []
-        self.current_attempt = ""
-        self.attempts_data = []  # Lista de tuplas (attempt, feedback)
+        self.attempts_data = []  # Lista de tuplas (intento, feedback)
 
-        # Solicitar configuración inicial
+        # Solicitar configuración de la longitud de la palabra.
         length = simpledialog.askinteger(
             "Configuración",
             "Ingresa la cantidad de letras (default 5):",
             initialvalue=WORD_LENGTH,
         )
         self.word_length = length if length else WORD_LENGTH
+
+        # Cargar palabras del diccionario filtradas por la longitud especificada.
         self.words_list = load_words(FILE, self.word_length)
         if not self.words_list:
             messagebox.showerror(
@@ -176,8 +131,10 @@ class WordleSolverGUI:
             )
             self.root.destroy()
             return
+        # Guardar la lista original para poder reiniciarla luego.
+        self.initial_words_list = self.words_list.copy()
 
-        # Solicitar la primera palabra
+        # Solicitar la primera palabra; si no se ingresa, se elige una al azar.
         while True:
             attempt = simpledialog.askstring(
                 "Configuración", "Ingresa la primera palabra:"
@@ -194,7 +151,7 @@ class WordleSolverGUI:
                     "La palabra no está en la lista. Prueba a añadirla manualmente al diccionario y vuelve a ejecutar el programa.",
                 )
 
-        # Crear elementos gráficos
+        # Construir la interfaz gráfica.
         self.table_frame = tk.Frame(self.root)
         self.table_frame.pack(padx=10, pady=10)
 
@@ -217,11 +174,23 @@ class WordleSolverGUI:
         )
         submit_button.pack(side=tk.LEFT, padx=5)
 
+        # Botón Reset para reiniciar las palabras escritas y la tabla de intentos.
+        reset_button = tk.Button(
+            feedback_frame, text="Reset", command=self.reset_attempts
+        )
+        reset_button.pack(side=tk.LEFT, padx=5)
+
+        # Botón Exit para salir de la aplicación.
         exit_button = tk.Button(self.root, text="Exit", command=self.root.destroy)
         exit_button.pack(pady=5)
 
+        # Bind: presionando Enter se simula click en Submit.
+        self.root.bind("<Return>", lambda event: self.process_feedback())
+
     def process_feedback(self):
-        """Procesa el feedback ingresado por el usuario y actualiza la tabla de intentos."""
+        """
+        Procesa el feedback ingresado por el usuario y actualiza la tabla de intentos.
+        """
         feedback = self.feedback_entry.get().upper().strip()
         if feedback in ["T", "ESC"]:
             self.root.destroy()
@@ -232,11 +201,11 @@ class WordleSolverGUI:
             )
             return
 
-        # Agregar el intento y feedback a la tabla
+        # Agregar el intento y feedback a la tabla de intentos.
         self.attempts_data.append((self.current_attempt, feedback))
         self.add_attempt_row(self.current_attempt, feedback)
 
-        # Filtrar la lista de palabras y calcular el siguiente intento
+        # Actualizar la lista de palabras candidatas y la siguiente sugerencia.
         self.words_list = filter_words(self.words_list, self.current_attempt, feedback)
         if not self.words_list:
             messagebox.showerror(
@@ -250,13 +219,14 @@ class WordleSolverGUI:
         self.feedback_entry.delete(0, tk.END)
 
     def add_attempt_row(self, attempt: str, feedback: str):
-        """Agrega una fila a la tabla de intentos con el intento y feedback proporcionados.
+        """
+        Agrega una fila a la tabla gráfica que muestra el intento y su feedback asociado.
 
         Args:
-            attempt (str): Intento de palabra.
-            feedback (str): Feedback del intento.
+            attempt (str): Palabra intentada.
+            feedback (str): Feedback recibido para el intento.
         """
-        row = len(self.attempts_data) - 1  # índice de la fila
+        row = len(self.attempts_data) - 1
         for col, (letter, fb) in enumerate(zip(attempt, feedback)):
             if fb == "B":
                 bg_color = "green"
@@ -278,9 +248,28 @@ class WordleSolverGUI:
             )
             lbl.grid(row=row, column=col, padx=2, pady=2)
 
+    def reset_attempts(self):
+        """
+        Reinicia el historial de intentos y restablece la lista de palabras.
+        Esto permite limpiar la tabla gráfica y volver a empezar el proceso.
+        """
+        # Limpiar datos de intentos y la tabla gráfica.
+        self.attempts_data.clear()
+        for widget in self.table_frame.winfo_children():
+            widget.destroy()
+        # Restablecer la lista de palabras y la sugerencia.
+        self.words_list = self.initial_words_list.copy()
+        self.current_attempt = best_try(self.words_list)
+        self.suggestion_label.config(
+            text=f"Siguiente sugerencia: {self.current_attempt}"
+        )
+        self.feedback_entry.delete(0, tk.END)
+
 
 def run_gui():
-    """Función principal para ejecutar el modo gráfico del resolverdor de Wordle."""
+    """
+    Inicia la interfaz gráfica del solucionador de Wordle.
+    """
     app = WordleSolverGUI()
     app.root.mainloop()
 
